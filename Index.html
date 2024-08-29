@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App de Probabilidades</title>
+</head>
+<body>
+    <h1>Calculadora de Probabilidad de Números</h1>
+    <form id="combinacionesForm">
+        <div id="combinaciones">
+            <!-- Aquí se agregarán las combinaciones -->
+        </div>
+        <button type="button" onclick="agregarCombinacion()">Agregar Combinación</button>
+        <button type="submit">Calcular Probabilidad</button>
+    </form>
+    <div id="resultado"></div>
+
+    <script>
+        let combinacionCount = 0;
+
+        function agregarCombinacion() {
+            if (combinacionCount >= 5) return;
+            combinacionCount++;
+
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <h3>Combinación ${combinacionCount}</h3>
+                <label>Seis números (1-40):</label>
+                <input type="text" name="seisNumeros${combinacionCount}" placeholder="Ej: 1,2,3,4,5,6" required><br>
+                <label>Un número (1-12):</label>
+                <input type="number" name="unNumero12${combinacionCount}" min="1" max="12" required><br>
+                <label>Un número (1-15):</label>
+                <input type="number" name="unNumero15${combinacionCount}" min="1" max="15" required><br>
+            `;
+            document.getElementById('combinaciones').appendChild(div);
+        }
+
+        document.getElementById('combinacionesForm').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const formData = new FormData(this);
+            const combinaciones = [];
+            
+            for (let i = 1; i <= combinacionCount; i++) {
+                combinaciones.push({
+                    seisNumeros: formData.get(`seisNumeros${i}`).split(',').map(Number),
+                    unNumero12: Number(formData.get(`unNumero12${i}`)),
+                    unNumero15: Number(formData.get(`unNumero15${i}`))
+                });
+            }
+
+            // Enviar datos al servidor
+            const response = await fetch('/calcular-probabilidad', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ combinaciones })
+            });
+
+            const data = await response.json();
+            document.getElementById('resultado').innerText = `Probabilidad: ${data.probabilidad}`;
+        });
+    </script>
+</body>
+</html>
