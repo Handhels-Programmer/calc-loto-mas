@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Combinaciones</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+    <h1>Generador de Combinaciones</h1>
+    <form method="POST">
+        {% for i in range(1, 6) %}
+        <div>
+            <h3>Combinación {{ i }}</h3>
+            {% for j in range(1, 7) %}
+                <label for="numero_{{i}}_{{j}}">Número {{ j }} (1-40):</label>
+                <input type="number" name="numeros{{i}}" min="1" max="40" required><br>
+            {% endfor %}
+            <label for="numero_extra_1_{{i}}">Número extra 1 (1-12):</label>
+            <input type="number" name="numero_extra_1_{{i}}" min="1" max="12" required><br>
+            <label for="numero_extra_2_{{i}}">Número extra 2 (1-15):</label>
+            <input type="number" name="numero_extra_2_{{i}}" min="1" max="15" required><br>
+        </div>
+        {% endfor %}
+        <button type="submit">Generar Combinación</button>
+    </form>
+    {% if resultado %}
+        <h2>Resultado:</h2>
+        <p>{{ resultado }}</p>
+    {% endif %}
+</body>
+</html>
