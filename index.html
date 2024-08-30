@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generador de Combinaciones</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-image: url(Logo\ Fondo.png); /* Ruta de la imagen de fondo */
+            background-repeat: repeat; /* Repetir la imagen en toda la página */
+            background-size: 200px; /* Tamaño automático para la imagen de fondo */
+            color: #333;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .header img {
+            width: 700px; /* Ajusta el tamaño según sea necesario */
+            height: auto;
+        }
+
+        form {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        label {
+            display: inline-block;
+            width: 150px;
+        }
+
+        input {
+            margin-bottom: 10px;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #218838;
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .result {
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #e9ecef;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .error {
+            color: red;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <img src="Logo.png"Título de la Aplicación">
+        <h1>Generador de Probabilidades</h1>
+    </div>
+
+    <form id="combinacionesForm">
+        <div id="combinacionesContainer">
+            <!-- Aquí se generarán dinámicamente las entradas de combinaciones -->
+        </div>
+        <button type="button" onclick="generarCombinacion()">Generar Calculo</button>
+    </form>
+
+    <div id="resultado" class="result"></div>
+    <div id="error" class="error"></div>
+
+    <script>
+        // Generar las entradas de combinación en el formulario
+        function generarEntradas() {
+            const container = document.getElementById('combinacionesContainer');
+            for (let i = 1; i <= 5; i++) {
+                const div = document.createElement('div');
+                div.innerHTML = `
+                    <h3>Combinación ${i}</h3>
+                    ${generarInputsNumeros(i)}
+                    <label for="numero_extra_1_${i}">Número extra 1 (1-12):</label>
+                    <input type="number" id="numero_extra_1_${i}" min="1" max="12" required><br>
+                    <label for="numero_extra_2_${i}">Número extra 2 (1-15):</label>
+                    <input type="number" id="numero_extra_2_${i}" min="1" max="15" required><br>
+                `;
+                container.appendChild(div);
+            }
+        }
+
+        function generarInputsNumeros(i) {
+            let inputs = '';
+            for (let j = 1; j <= 6; j++) {
+                inputs += `
+                    <label for="numero_${i}_${j}">Número ${j} (1-40):</label>
+                    <input type="number" id="numero_${i}_${j}" min="1" max="40" required><br>
+                `;
+            }
+            return inputs;
+        }
+
+        // Generar una combinación aleatoria
+        function generarCombinacionAleatoria() {
+            const numeros_principales = [];
+            while (numeros_principales.length < 6) {
+                const num = Math.floor(Math.random() * 40) + 1;
+                if (!numeros_principales.includes(num)) {
+                    numeros_principales.push(num);
+                }
+            }
+            const numero_extra_1 = Math.floor(Math.random() * 12) + 1;
+            const numero_extra_2 = Math.floor(Math.random() * 15) + 1;
+            return [numeros_principales, numero_extra_1, numero_extra_2];
+        }
+
+        // Comparar si dos combinaciones son iguales
+        function compararCombinaciones(comb1, comb2) {
+            const [nums1, extra1_1, extra1_2] = comb1;
+            const [nums2, extra2_1, extra2_2] = comb2;
+            return (
+                nums1.sort((a, b) => a - b).join(',') === nums2.sort((a, b) => a - b).join(',') &&
+                extra1_1 === extra2_1 &&
+                extra1_2 === extra2_2
+            );
+        }
+
+        // Obtener las combinaciones ingresadas por el usuario
+        function obtenerCombinacionesUsuario() {
+            const combinaciones = [];
+            let error = false;
+            let errorMsg = '';
+
+            for (let i = 1; i <= 5; i++) {
+                const numeros_principales = [];
+                const numsSet = new Set();
+                for (let j = 1; j <= 6; j++) {
+                    const num = parseInt(document.getElementById(`numero_${i}_${j}`).value);
+                    if (num < 1 || num > 40 || numsSet.has(num)) {
+                        error = true;
+                        errorMsg = `Número ${j} para la combinación ${i} no está en el rango 1-40 o es un duplicado.`;
+                        break;
+                    }
+                    numsSet.add(num);
+                    numeros_principales.push(num);
+                }
+
+                if (error) break;
+
+                const numero_extra_1 = parseInt(document.getElementById(`numero_extra_1_${i}`).value);
+                if (numero_extra_1 < 1 || numero_extra_1 > 12) {
+                    error = true;
+                    errorMsg = `Número extra 1 para la combinación ${i} no está en el rango 1-12.`;
+                    break;
+                }
+
+                const numero_extra_2 = parseInt(document.getElementById(`numero_extra_2_${i}`).value);
+                if (numero_extra_2 < 1 || numero_extra_2 > 15) {
+                    error = true;
+                    errorMsg = `Número extra 2 para la combinación ${i} no está en el rango 1-15.`;
+                    break;
+                }
+
+                combinaciones.push([numeros_principales, numero_extra_1, numero_extra_2]);
+            }
+
+            if (error) {
+                document.getElementById('error').innerText = errorMsg;
+                return [];
+            } else {
+                document.getElementById('error').innerText = '';
+                return combinaciones;
+            }
+        }
+
+        // Generar combinación y comparar con las ingresadas
+        function generarCombinacion() {
+            const combinaciones_usuario = obtenerCombinacionesUsuario();
+
+            if (combinaciones_usuario.length === 0) return;
+
+            const combinacion_generada = generarCombinacionAleatoria();
+
+            let resultado = "La combinación generada no coincide con ninguna de las combinaciones ingresadas.";
+            for (const combinacion of combinaciones_usuario) {
+                if (compararCombinaciones(combinacion, combinacion_generada)) {
+                    resultado = "¡La combinación generada coincide con una de las combinaciones ingresadas!";
+                    break;
+                }
+            }
+
+            // Mostrar la combinación generada y el resultado
+            document.getElementById('resultado').innerHTML = `
+                <h3>Combinación generada:</h3>
+                <p>Números principales: ${combinacion_generada[0].sort((a, b) => a - b).join(', ')}</p>
+                <p>Número extra 1: ${combinacion_generada[1]}</p>
+                <p>Número extra 2: ${combinacion_generada[2]}</p>
+                <p>${resultado}</p>
+            `;
+        }
+
+        // Generar las entradas del formulario al cargar la página
+        generarEntradas();
+    </script>
+</body>
+</html>
